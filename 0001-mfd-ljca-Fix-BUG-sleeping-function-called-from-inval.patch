@@ -1,0 +1,55 @@
+From afe1acf386e978b41e2f4067fde1ecfa72f219a0 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Fri, 21 Oct 2022 23:54:40 +0200
+Subject: [PATCH 1/2] mfd: ljca: Fix "BUG: sleeping function called from
+ invalid context"
+
+USB URB completion handlers run in interrupt context,
+so the URB resubmission must use GFP_ATOMIC.
+
+This fixes the following WARN()/BUG() log messages:
+
+[   28.493744] BUG: sleeping function called from invalid context at include/linux/sched/mm.h:274
+[   28.493746] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 0, name: swapper/9
+[   28.493748] preempt_count: 101, expected: 0
+[   28.493749] RCU nest depth: 0, expected: 0
+[   28.493750] INFO: lockdep is turned off.
+[   28.493750] Preemption disabled at:
+[   28.493751] [<ffffffff983b1736>] ___slab_alloc+0x8d6/0xea0
+[   28.493754] CPU: 9 PID: 0 Comm: swapper/9 Tainted: G           O       6.0.0+ #508
+[   28.493755] Hardware name: LENOVO 21CEZ9Q3US/21CEZ9Q3US, BIOS N3AET66W (1.31 ) 09/09/2022
+[   28.493756] Call Trace:
+[   28.493757]  <IRQ>
+[   28.493758]  dump_stack_lvl+0x5b/0x77
+[   28.493761]  __might_resched.cold+0xff/0x13a
+[   28.493763]  __kmalloc+0x209/0x3d0
+[   28.493765]  xhci_urb_enqueue+0xee/0x5a0
+[   28.493768]  usb_hcd_submit_urb+0xbd/0xb80
+[   28.493770]  ? _raw_spin_unlock_irqrestore+0x30/0x60
+[   28.493772]  ? _raw_spin_unlock_irqrestore+0x30/0x60
+[   28.493773]  ? lockdep_hardirqs_on+0x7d/0x100
+[   28.493776]  ? _raw_spin_unlock_irqrestore+0x40/0x60
+[   28.493777]  ? __wake_up_common_lock+0x77/0x90
+[   28.493780]  ljca_read_complete+0x12c/0x28b [ljca]
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/mfd/ljca.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mfd/ljca.c b/drivers/mfd/ljca.c
+index be1f93f..fabec0f 100644
+--- a/drivers/mfd/ljca.c
++++ b/drivers/mfd/ljca.c
+@@ -566,7 +566,7 @@ static void ljca_read_complete(struct urb *urb)
+ 			header->type, header->len);
+ 
+ resubmit:
+-	ret = usb_submit_urb(urb, GFP_KERNEL);
++	ret = usb_submit_urb(urb, GFP_ATOMIC);
+ 	if (ret)
+ 		dev_err(&ljca->intf->dev,
+ 			"failed submitting read urb, error %d\n", ret);
+-- 
+2.37.3
+

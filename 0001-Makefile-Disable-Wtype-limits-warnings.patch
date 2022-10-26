@@ -1,0 +1,36 @@
+From 7c369f16b2e35a31fb3aa46dac0bceb42c0f8c13 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Fri, 21 Oct 2022 15:59:48 +0200
+Subject: [PATCH 1/6] Makefile: Disable -Wtype-limits warnings
+
+The -Wextra added to the subdir-ccflags-y enables -Wtype-limits which
+triggers a bunch of warnings in the mainline kernel's headers with
+recent gcc versions.
+
+This causes so much warnings that it is very hard to see any other
+warnings and since these warnings are in the kernel's own headers
+we cannot fix them.
+
+Disable -Wtype-limits warnings, so that we can clearly see our own
+warnings again.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/media/pci/intel/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/media/pci/intel/Makefile b/drivers/media/pci/intel/Makefile
+index 852c4b313..19fe3aab1 100644
+--- a/drivers/media/pci/intel/Makefile
++++ b/drivers/media/pci/intel/Makefile
+@@ -7,6 +7,7 @@ subdir-ccflags-y := -Wall -Wextra
+ subdir-ccflags-y += $(call cc-disable-warning, unused-parameter)
+ subdir-ccflags-y += $(call cc-disable-warning, implicit-fallthrough)
+ subdir-ccflags-y += $(call cc-disable-warning, missing-field-initializers)
++subdir-ccflags-y += $(call cc-disable-warning, type-limits)
+ subdir-ccflags-$(CONFIG_VIDEO_INTEL_IPU_WERROR) += -Werror
+ 
+ obj-$(CONFIG_VIDEO_INTEL_IPU6)	+= ipu6/
+-- 
+2.37.3
+
