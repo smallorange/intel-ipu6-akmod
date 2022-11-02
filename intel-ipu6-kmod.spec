@@ -74,7 +74,7 @@ done
 
 %build
 for kernel_version  in %{?kernel_versions} ; do
-  make V=1 %{?_smp_mflags} -C ${kernel_version##*___} M=${PWD}/_kmod_build_${kernel_version%%___*} modules
+  make -C ${kernel_version##*___} M=${PWD}/_kmod_build_${kernel_version%%___*} modules
 done
 
 %install
