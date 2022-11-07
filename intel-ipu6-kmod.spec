@@ -38,7 +38,9 @@ BuildRequires:  kmodtool
 %{expand:%(kmodtool --target %{_target_cpu} --repo rpmfusion --kmodname %{prjname} %{?buildforkernels:--%{buildforkernels}} %{?kernels:--for-kernels "%{?kernels}"} 2>/dev/null) }
 
 %description
-This enables intel IPU6 image processor. 
+This enables intel IPU6 image processor. The package includes Intel IPU6 and iVSC drivers
+The source can be found from the following URL.
+https://github.com/intel/ipu6-drivers
 
 This package contains the kmod module for %{prjname}.
 
