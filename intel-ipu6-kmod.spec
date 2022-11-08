@@ -12,8 +12,8 @@ Release:        3%{?dist}
 License:        GPLv2+
 
 URL:            https://github.com/smallorange
-Source0:        ${url}/ivsc-driver/releases/download/%{version}/ivsc-driver-%{version}.tar.xz
-Source1:        ${url}/ipu6-drivers/releases/download/%{version}/ipu6-drivers-%{version}.tar.xz
+Source0:        %{url}/ivsc-driver/releases/download/%{version}/ivsc-driver-%{version}.tar.xz
+Source1:        %{url}/ipu6-drivers/releases/download/%{version}/ipu6-drivers-%{version}.tar.xz
 
 # Patches
 # iVSC 
